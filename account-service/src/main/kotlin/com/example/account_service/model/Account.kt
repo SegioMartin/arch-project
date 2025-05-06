@@ -1,6 +1,7 @@
 package com.example.account_service.model
 
 import jakarta.persistence.*
+import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
@@ -17,11 +18,11 @@ data class Account(
     val email: String,
 
     @Column(nullable = false, precision = 19, scale = 4)
-    val balance: BigDecimal = BigDecimal.ZERO,
+    var balance: BigDecimal = BigDecimal.ZERO,
 
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    val updatedAt: LocalDateTime = LocalDateTime.now()
-)
+    var updatedAt: LocalDateTime = LocalDateTime.now()
+) : Serializable

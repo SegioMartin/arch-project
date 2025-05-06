@@ -1,12 +1,9 @@
 package com.example.account_service.model
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.Table
-import java.math.BigDecimal
+import com.fasterxml.jackson.databind.JsonNode
+import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -23,9 +20,9 @@ data class AccountEvent(
     @Column(nullable = false)
     val eventType: AccountEventType,
 
-    @Column
-    val amount: BigDecimal? = null,
+    @JdbcTypeCode(SqlTypes.JSON)
+    val payload: JsonNode,
 
     @Column(nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val timestamp: LocalDateTime = LocalDateTime.now()
 )

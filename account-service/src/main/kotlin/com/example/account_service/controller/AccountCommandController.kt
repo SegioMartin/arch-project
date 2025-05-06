@@ -21,7 +21,7 @@ class AccountCommandController (
     @PostMapping
     fun createAccount(@RequestBody command: CreateAccountCommand): ResponseEntity<String> {
         commandService.handle(command)
-        return ResponseEntity.status(HttpStatus.CREATED).body("Account created with ID: ${command.accountId}")
+        return ResponseEntity.status(HttpStatus.CREATED).body("Account created")
     }
 
     @PostMapping("/{accountId}/deposit")

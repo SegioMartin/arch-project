@@ -2,8 +2,10 @@ package com.example.account_service
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.cache.annotation.EnableCaching
 
 @SpringBootApplication
+@EnableCaching
 class AccountServiceApplication
 
 fun main(args: Array<String>) {

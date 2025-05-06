@@ -1,6 +1,7 @@
 version: '3.9'
 
 services:
+  # Account Service
   account-postgres:
     image: postgres:17
     container_name: account-postgres
@@ -13,6 +14,13 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+  
+  account-redis:
+    image: redis:8
+    container_name: account-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
 
 volumes:
   pgdata:
