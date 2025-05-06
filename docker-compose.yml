@@ -1,5 +1,10 @@
 version: '3.9'
 
+networks:
+  account-net:
+  transfer-net: 
+  gateway-net:
+
 services:
   # Account Service
   account-postgres:
@@ -10,18 +15,47 @@ services:
       POSTGRES_USER: account_user
       POSTGRES_PASSWORD: account_pass
       POSTGRES_DB: account_db
-    ports:
-      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pg-account-data:/var/lib/postgresql/data
+    networks: [account-net]
   
   account-redis:
     image: redis:8
     container_name: account-redis
-    ports:
-      - "6379:6379"
     command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    networks: [account-net]
+
+  account-service:
+    build: account-service
+    container_name: account-service
+    environment:
+      SPRING_AMQP_DESERIALIZATION_TRUST_ALL: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - account-postgres
+    networks: [account-net]
+
+  # Transfer Service
+  transfer-service:
+    build: transfer-service
+    container_name: transfer-service
+    ports:
+      - "8081:8081"
+    networks: [transfer-net]
+  
+  # Others
+  arch-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: arch-rabbitmq
+    ports:
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks: [account-net, transfer-net]
+
 
 volumes:
-  pgdata:
+  pg-account-data:
 

@@ -7,7 +7,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 class RedisConfig {
     @Bean
     fun redisConnectionFactory(): LettuceConnectionFactory {
-        return LettuceConnectionFactory("localhost", 6379)
+        return LettuceConnectionFactory("account-redis", 6379)
     }
 
 

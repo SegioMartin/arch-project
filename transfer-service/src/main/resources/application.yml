@@ -1,0 +1,15 @@
+spring:
+  rabbitmq:
+    host: arch-rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+
+server:
+  port: 8081
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
