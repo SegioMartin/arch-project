@@ -3,9 +3,7 @@ package com.example.account_service.command
 import java.math.BigDecimal
 import java.util.UUID
 
-data class CreateAccountCommand(
+data class DepositMoneyCommand(
     val accountId: UUID,
-    val ownerName: String,
-    val email: String,
-    val initialBalance: BigDecimal
+    val amount: BigDecimal
 )

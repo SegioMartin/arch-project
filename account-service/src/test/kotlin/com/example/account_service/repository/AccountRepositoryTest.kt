@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
 import java.util.UUID
@@ -21,7 +20,8 @@ class AccountRepositoryTest @Autowired constructor(
         val account = Account(
             id = UUID.randomUUID(),
             owner = "John Doe",
-            balance = BigDecimal("100.00")
+            balance = BigDecimal("100.00"),
+            email = "test@mail.com"
         )
 
         accountRepository.save(account)
@@ -38,7 +38,8 @@ class AccountRepositoryTest @Autowired constructor(
         val account = Account(
             id = UUID.randomUUID(),
             owner = "Jane Smith",
-            balance = BigDecimal("50.00")
+            balance = BigDecimal("50.00"),
+            email = "test@mail.com"
         )
 
         accountRepository.save(account)
