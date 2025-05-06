@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  account-postgres:
+    image: postgres:17
+    container_name: account-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: account_user
+      POSTGRES_PASSWORD: account_pass
+      POSTGRES_DB: account_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+
