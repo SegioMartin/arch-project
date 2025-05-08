@@ -34,6 +34,8 @@ services:
       - "8080:8080"
     depends_on:
       - account-postgres
+      - account-redis
+      - arch-rabbitmq
     networks: [account-net]
 
   # Transfer Service
@@ -43,6 +45,19 @@ services:
     ports:
       - "8081:8081"
     networks: [transfer-net]
+    depends_on:
+      - arch-rabbitmq
+
+  # API-gateway
+  api-gateway:
+    build: api-gateway
+    container_name: api-gateway
+    ports:
+      - "8082:8082"
+    networks: [gateway-net, account-net, transfer-net]
+    depends_on:
+      - transfer-service
+      - account-service
   
   # Others
   arch-rabbitmq:
