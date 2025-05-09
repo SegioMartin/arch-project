@@ -17,15 +17,15 @@ class AccountProjector (
     private val accountRepository: AccountRepository,
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 ) {
-    fun project(event: AccountEvent) {
-        when (event.eventType) {
+    fun project(event: AccountEvent): Account {
+        return when (event.eventType) {
             AccountEventType.ACCOUNT_CREATED -> handleAccountCreated(event)
             AccountEventType.BALANCE_CREDITED -> handleMoneyCredited(event)
             AccountEventType.BALANCE_DEBITED -> handleMoneyDeposited(event)
         }
     }
 
-    private fun handleAccountCreated(event: AccountEvent) {
+    private fun handleAccountCreated(event: AccountEvent): Account {
         val payload = objectMapper.treeToValue(event.payload, CreateAccountCommand::class.java)
         val account = Account(
             id = event.accountId,
@@ -35,22 +35,22 @@ class AccountProjector (
             createdAt = event.timestamp,
             updatedAt = event.timestamp
         )
-        accountRepository.save(account)
+        return accountRepository.save(account)
     }
 
-    private fun handleMoneyDeposited(event: AccountEvent) {
+    private fun handleMoneyDeposited(event: AccountEvent): Account {
         val payload = objectMapper.treeToValue(event.payload, DepositMoneyCommand::class.java)
         val account = accountRepository.findById(event.accountId).orElseThrow()
         account.balance += payload.amount
         account.updatedAt = event.timestamp
-        accountRepository.save(account)
+        return accountRepository.save(account)
     }
 
-    private fun handleMoneyCredited(event: AccountEvent) {
+    private fun handleMoneyCredited(event: AccountEvent): Account {
         val payload = objectMapper.treeToValue(event.payload, CreditMoneyCommand::class.java)
         val account = accountRepository.findById(event.accountId).orElseThrow()
         account.balance -= payload.amount
         account.updatedAt = event.timestamp
-        accountRepository.save(account)
+        return accountRepository.save(account)
     }
 }
