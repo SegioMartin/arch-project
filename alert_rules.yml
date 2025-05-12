@@ -1,0 +1,33 @@
+groups:
+  - name: cpu-alerts
+    rules:
+      - alert: HighSystemCPUUsage
+        expr: system_cpu_usage > 0.50 # 50% to proverit' rabotaet li
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High system CPU usage detected"
+          description: "Overall CPU usage on the system is over 50% for the last 2 minutes."
+
+  - name: rabbitmq-alerts
+    rules:
+      - alert: RabbitMQUnackedMessagesHigh
+        expr: rabbitmq_queue_messages_unacked > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of unacknowledged messages in RabbitMQ"
+          description: "The number of unacknowledged messages in RabbitMQ has been greater than 2 for the last 5 minutes."
+
+  - name: jvm-alerts
+    rules:
+      - alert: JVMMemoryUsageHigh
+        expr: (jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}) > 0.6
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High JVM heap memory usage detected"
+          description: "JVM heap memory usage has exceeded 60% of the maximum available for the last 5 minutes."
