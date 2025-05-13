@@ -1,6 +1,12 @@
 version: '3.9'
 
+networks:
+  account-net:
+  transfer-net: 
+  gateway-net:
+
 services:
+  # Account Service
   account-postgres:
     image: postgres:17
     container_name: account-postgres
@@ -9,11 +15,107 @@ services:
       POSTGRES_USER: account_user
       POSTGRES_PASSWORD: account_pass
       POSTGRES_DB: account_db
-    ports:
-      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pg-account-data:/var/lib/postgresql/data
+    networks: [account-net]
+  
+  account-redis:
+    image: redis:8
+    container_name: account-redis
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    networks: [account-net]
+
+  account-service:
+    build: account-service
+    container_name: account-service
+    environment:
+      SPRING_AMQP_DESERIALIZATION_TRUST_ALL: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - account-postgres
+      - account-redis
+      - arch-rabbitmq
+    networks: [account-net]
+
+  # Transfer Service
+  transfer-service:
+    build: transfer-service
+    container_name: transfer-service
+    ports:
+      - "8081:8081"
+    networks: [transfer-net]
+    depends_on:
+      - arch-rabbitmq
+
+  # API-gateway
+  api-gateway:
+    build: api-gateway
+    container_name: api-gateway
+    ports:
+      - "8082:8082"
+    networks: [gateway-net, account-net, transfer-net]
+    depends_on:
+      - transfer-service
+      - account-service
+  
+  # Others
+  arch-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: arch-rabbitmq
+    ports:
+      - "15672:15672"
+      - "15692:15692"  # По этому порту Prometheus может получить метрики
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbitmq_prometheus true" # Включает плагин для отдачи метрик
+    networks: [account-net, transfer-net]
+  
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alert_rules.yml:/etc/prometheus/alert_rules.yml
+    ports:
+      - "9090:9090"
+    networks: [account-net, transfer-net, gateway-net]
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks: [account-net, transfer-net, gateway-net]
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+  
+  alertmanager:
+    image: prom/alertmanager:v0.24.0
+    container_name: alertmanager
+    ports:
+      - "9093:9093"   # Alertmanager web UI
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    networks: [account-net, transfer-net, gateway-net]
+  
+  # Тестовый SMTP сервер
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit-lab4
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    restart: unless-stopped
+    networks: [account-net, transfer-net, gateway-net]
+
 
 volumes:
-  pgdata:
-
+  pg-account-data:
+  grafana-data:
